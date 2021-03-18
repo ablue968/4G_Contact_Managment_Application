@@ -1,21 +1,35 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import { Context } from "../store/appContext.js";
 
-export function AddContact() {
-	const { store, actions } = useContext(Context); // SE DEFINE COMO OBJETO
+export function UpdateContact() {
+	const params = useParams();
 
-	const [fullName, setFullName] = useState(""); // SE DEFINE COMO DOS VARIABLES
+	const { store, actions } = useContext(Context);
+
+	const [fullName, setFullName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
 	const [address, setAddress] = useState("");
+
+	useEffect(() => {
+		actions.getContact(params.id);
+	}, []);
+
+	useEffect(() => {
+		setFullName(store.contacto.full_name);
+		setPhone(store.contacto.phone);
+		setEmail(store.contacto.email);
+		setAddress(store.contacto.address);
+	}, [store.contacto]);
 
 	function NewEmail(event) {
 		setEmail(event.target.value);
 	}
 
-	const SaveContact = e => {
+	const UpdateContact = e => {
 		const newContact = {
 			full_name: fullName,
 			phone: phone,
@@ -24,9 +38,11 @@ export function AddContact() {
 			agenda_slug: store.usuario
 		};
 
-		actions.createContact(newContact);
-		// actions.listContacts(newContact.agenda_slug);
-		alert("new contact created successfully");
+		// console.log("update contact", newContact);
+
+		actions.updateContact(params.id, newContact); // SE USA PARAMS PARA INDICAR EL CONTACTO QUE ESTAMOS MODIFICANDO
+
+		alert("Contact successfully updated");
 		setFullName("");
 		setPhone("");
 		setEmail("");
@@ -36,7 +52,7 @@ export function AddContact() {
 	return (
 		<div className="container">
 			<div>
-				<h1 className="text-center mt-5">Add a new contact</h1>
+				<h1 className="text-center mt-5">Update a new contact</h1>
 				<form>
 					<div className="form-group">
 						<label>Full Name</label>
@@ -79,8 +95,8 @@ export function AddContact() {
 						/>
 					</div>
 					<Link to="/">
-						<button type="button" className="btn btn-primary form-control" onClick={SaveContact}>
-							Save
+						<button type="button" className="btn btn-primary form-control" onClick={UpdateContact}>
+							Update
 						</button>
 					</Link>
 					<Link className="mt-3 w-100 text-center" to="/">
